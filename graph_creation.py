@@ -132,17 +132,17 @@ def iterate_dataframe(df, graph):
 
 if __name__ == "__main__":
     graph_file = "full_actors"
-    # graph_file = "bond_movies"
+    #graph_file = "bond_movies"
 
     if not os.path.exists(f"graph/{graph_file}_bi.gml"):
-        df = pd.read_csv("processed/super_heroes.csv")
-        #df = load_merged_data()
+        # df = pd.read_csv("processed/super_heroes.csv")
+        df = load_merged_data()
         G, G_actors, G_movies= build_graphs(df, graph_file)
     
-    loadme = f"graph/{graph_file}_actors.gml"
+    loadme = f"graph/{graph_file}_movies.gml"
     print(f"Loading graph {loadme}")
     G_loaded = nx.read_gml(loadme)
-
+    print(f"Loading graph {loadme} done!")
 
     #G_actors = nx.bipartite.projected_graph(G, list(actors))
     #print(nx.info(G_actors))
@@ -151,9 +151,10 @@ if __name__ == "__main__":
     #G_movies = nx.bipartite.projected_graph(G, list(movies))
     #print(nx.info(G_movies))
 
-    print("Plotting")
-
+    print("Max degree")
     max_degree(G_loaded, graph_file)
+
+    print("Max labeling")
     labeling(G_loaded, graph_file)
 
     #print(nx.info(G_movies))

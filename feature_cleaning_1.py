@@ -22,7 +22,7 @@ def load_title_basics(nrows):
     movie_age_ondition = dftitlebasics['startYear'].astype(int) > 1950
     dftitle_only_movies = dftitlebasics[moviecondition & movie_age_ondition & isAdultFalse]
 
-    print("Only non adult movies younger then 1950")
+    print("Only non adult movies after 1950")
     # drop columns not used
     return dftitle_only_movies.drop(columns=['titleType', 'originalTitle', 'isAdult', 'endYear', 'runtimeMinutes'])
 
@@ -35,7 +35,13 @@ def load_and_clean_names(nrows):
     birthYearCondition = dfnamebasics['birthYear'].astype(int) > 1900
 
     dfnamebasics = dfnamebasics[actorCondition & birthYearCondition]
+    df_t_r = dfnamebasics
+    # Enrich with know for titles
+    # df_t_r = enrich_with_known_4(dfnamebasics)
+    return df_t_r.drop(columns=['deathYear', 'primaryProfession', 'knownForTitles'])
 
+
+def enrich_with_known_4(dfnamebasics):
     df_titles = dfnamebasics['knownForTitles'].str.split(',', expand=True).rename(columns={0: 't0', 1: 't1', 2: 't2', 3: 't3'})
     df_res = dfnamebasics.join(df_titles)
 
@@ -46,10 +52,8 @@ def load_and_clean_names(nrows):
 
 
     df_t_r = df_t_0.append([df_t_1, df_t_2, df_t_3])
-    df_t_r.dropna(axis=0, inplace=True)
-
-    return df_t_r
-
+    df_t_r.dropna(axis=0, inplace=True)  
+    return df_t_r  
 
 def load_and_clean_actors(nrows):
     print("Loading title.principals.tsv.gz")
@@ -57,7 +61,7 @@ def load_and_clean_actors(nrows):
     actorCondition = dftitleprincipals['category'].str.contains('actor|actress', regex=True)
 
     dftitlePrincipalActor = dftitleprincipals[actorCondition]
-    return dftitlePrincipalActor.drop(columns=['ordering', 'job', 'characters'])
+    return dftitlePrincipalActor.drop(columns=['ordering', 'job', 'characters', 'category'])
     
 
 def loadProcessAndStore(filename, loadFn, nrows=MAX_LINE, clean=False):
@@ -79,7 +83,9 @@ def merge_and_store_data(filename, df_title_basics, df_actors,df_names, clean=Fa
 
     if not os.path.exists(filename):
         print("Merging dataframes")
-        dfActorInMoviesWithNames =df_names.merge(df_title_basics, on='tconst')
+
+        dfActorInMoviesWithNames = df_title_basics.merge(df_actors, on='tconst')
+        dfActorInMoviesWithNames =dfActorInMoviesWithNames.merge(df_names, on='nconst')
         dfActorInMoviesWithNames.to_pickle(filename)
 
     return pd.read_pickle(filename)
@@ -122,10 +128,10 @@ if __name__ == "__main__":
     print(df_exported_super.info())
 
     
-    df_merged = main(clean=False)
+    df_merged = main(clean=False, nrows=MAX_LINE)
 
-    condition = df_merged['nconst'] == 'nm0000125'
-    print(df_merged [condition].head())
+    # condition = df_merged['nconst'] == 'nm0000125'
+    # print(df_merged [condition].head())
 
     df_super = df_merged.merge(df_exported_super, on='tconst')
     print(df_super.info())
@@ -134,10 +140,10 @@ if __name__ == "__main__":
     print(df_super['primaryTitle'].unique())
 
 
-    for index, row in df_exported_super.iterrows():
-        condition = df_merged['tconst'] == row['tconst']
-        print(f"https://www.imdb.com/title/{row['tconst']}")
-        print(df_merged[condition].head(30))
+    # for index, row in df_exported_super.iterrows():
+    #     condition = df_merged['tconst'] == row['tconst']
+    #     print(f"https://www.imdb.com/title/{row['tconst']}")
+    #     print(df_merged[condition].head(30))
 
 
 
