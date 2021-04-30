@@ -1,3 +1,13 @@
+pip install -r requirements.txt
+
+In data directory
+
+wget https://datasets.imdbws.com/name.basics.tsv.gz
+wget https://datasets.imdbws.com/title.basics.tsv.gz
+wget https://datasets.imdbws.com/title.principals.tsv.gz
+wget https://datasets.imdbws.com/title.ratings.tsv.gz
+
+
 # Start neo4j docker 
 
 docker run \
@@ -50,3 +60,9 @@ docker run \
 
 
 Match (m:Movie)--(a:Actor)--(m2:Movie) where m.primaryTitle starts with 'Captain' return m,a,m2
+
+
+Information courtesy of
+IMDb
+(http://www.imdb.com).
+Used with permission.
