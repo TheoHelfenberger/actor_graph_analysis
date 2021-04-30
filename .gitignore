@@ -144,3 +144,4 @@ neo4j/
 *.gexf
 *.adjlist
 02 Network Modelling.*
+data/*.tsv.gz
