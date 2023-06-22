@@ -5,3 +5,4 @@ requests
 tables
 networkx
 scipy
+pyvis
